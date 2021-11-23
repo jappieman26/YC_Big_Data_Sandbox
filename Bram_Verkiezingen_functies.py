@@ -96,9 +96,9 @@ def volgorde_perc_ongeldig(uitslagenDF):
                                   'Blanco stemmen (%)' : blanco_perc_list}, index=list(uitslagenDF['RegioNaam']))
     
     sorted_geldigDF = geldigDF.sort_values('Ongeldige stemmen (%)')
-    sorted_geldigTabel = sorted_geldigDF.to_html()
+    sorted_geldig_tabel = sorted_geldigDF.to_html()
     
-    return "<h2>Rangschikking gemeentes naar ongeldige stemmen als percentage van de totale opkomst</h2>" + sorted_geldigTabel
+    return "<h2>Rangschikking gemeentes naar ongeldige stemmen als percentage van de totale opkomst</h2>" + sorted_geldig_tabel
 
 
 
