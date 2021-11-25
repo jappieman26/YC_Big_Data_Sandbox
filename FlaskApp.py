@@ -1,6 +1,6 @@
 import pandas as pd
 from flask import Flask
-import Bram_Verkiezingen_functies as verfuncs
+import Verkiezingen_functies as verfuncs
 
 
 # Het DataFrame met de stemmen inladen, en de tweede instantie van de dubbele
