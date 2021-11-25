@@ -65,6 +65,7 @@ def volgorde_gemeentes(uitslagenDF, partij):
         if partij in vol_naam:
             partijnaam = vol_naam
             naam_found = True
+            break
             
     if not naam_found:
         return "De partijnaam wordt niet herkend!"
@@ -111,9 +112,16 @@ def perc_ongeldig_gemeente(uitslagenDF, gemeente):
         gemeente_idx = uitslagenDF[uitslagenDF['RegioNaam'] == gemeente].index[0]
         perc_ongeldig = uitslagenDF.loc[gemeente_idx, 'OngeldigeStemmen'] / uitslagenDF.loc[gemeente_idx, 'Opkomst'] * 100
         perc_blanco = uitslagenDF.loc[gemeente_idx, 'BlancoStemmen'] / uitslagenDF.loc[gemeente_idx, 'Opkomst'] * 100
+        perc_geldig = 100 - (perc_ongeldig + perc_blanco)
+        
+        geldigDF = pd.DataFrame(data={'Gemeente': gemeente,
+                                   'Percentage Ongeldig': perc_ongeldig,
+                                   'Percentage Blanco': perc_blanco,
+                                   'Percentage Geldig': perc_geldig}, index=["1"])
+        geldig_html = geldigDF.to_html()
         
         return ("<h2>Ongeldige en blanco stemmen als percentage van de totale opkomst in " + gemeente + "</h2>" +
-                "Percentage ongeldig: " + str(perc_ongeldig) + "<br>" + "Percentage blanco: " + str(perc_blanco))
+                geldig_html)
         
     else:
         return "De gemeentenaam wordt niet herkend!"
