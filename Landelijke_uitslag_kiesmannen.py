@@ -1,14 +1,8 @@
 import pandas as pd
-from flask import Flask
 import Verkiezingen_functies as verfuncs
 
 
-uitslagenDF = pd.read_csv('Uitslag_alle_gemeenten_TK20210317.csv', sep=';')
-
-app = Flask(__name__)
-
-
-def landelijke_uitslag_kiesmannen():
+def landelijke_uitslag_kiesmannen(uitslagenDF):
     """
     Bereken de landelijke uitslag van de Tweede Kamerverkiezingen als het aantal zetels wordt uitgebreid naar 1050,
     en elke gemeente op basis van zijn populatie een aantal kiesmannen toegewezen krijgt. De partij die wint in een
@@ -50,12 +44,3 @@ def landelijke_uitslag_kiesmannen():
         
     return ("<h2>Landelijke uitslag Tweede Kamerverkiezingen 2021</h2> Op basis van een kiesdistrictstelsel met " +
             str(aantal_zetels) + " zetels." + zetel_tabel)
-
-
-@app.route("/landelijke_uitslag/kiesmannen", methods=['GET'])
-def get_landelijke_uitslag_kiesmannen():
-    return landelijke_uitslag_kiesmannen()
-
-
-if __name__ == '__main__':
-    app.run(port=8000,debug=True)
