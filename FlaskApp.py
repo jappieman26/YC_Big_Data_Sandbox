@@ -15,9 +15,14 @@ def hello_world():
     return "<p>Hello, World!</p>"
 
 
-@app.route("/landelijke_uitslag/", methods=['GET'])
+@app.route("/landelijke_uitslag/werkelijk/", methods=['GET'])
 def get_landelijke_uitslag():
     return verfuncs.landelijke_uitslag(uitslagenDF)
+
+
+@app.route("/landelijke_uitslag/kiesmannen/", methods=['GET'])
+def get_landelijke_uitslag_kiesmannen():
+    return verfuncs.landelijke_uitslag_kiesmannen(uitslagenDF)
 
 
 @app.route("/gemeente/uitslag/", methods=['GET'])
@@ -42,6 +47,7 @@ def get_perc_ongeldig_gemeente(gemeente):
 def get_volgorde_gemeentes(partij=""):
     if partij == "": return "Geef in de url aan van welke partij je de rangschikking wil zien."
     else: return verfuncs.volgorde_gemeentes(uitslagenDF, partij)
+
 
 @app.route("/alternatief/gemeente/winnaar")
 def populairste_per_gemeente():
