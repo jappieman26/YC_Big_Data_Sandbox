@@ -43,6 +43,14 @@ def get_volgorde_gemeentes(partij=""):
     if partij == "": return "Geef in de url aan van welke partij je de rangschikking wil zien."
     else: return verfuncs.volgorde_gemeentes(uitslagenDF, partij)
 
+@app.route("/alternatief/gemeente/winnaar")
+def populairste_per_gemeente():
+    return verfuncs.populairste_per_gemeente(uitslagenDF).to_html()
+
+@app.route("/alternatief/gemeente/zetels")
+def zetels_per_populairste_gemeente():
+    return verfuncs.zetels_per_populairste_gemeente(uitslagenDF).to_html() 
+
 
 if __name__ == '__main__':
     app.run(port=8000,debug=True)

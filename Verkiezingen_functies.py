@@ -143,6 +143,47 @@ def uitslag_gemeente(uitslagenDF, gemeente):
     else:
         return "De gemeentenaam wordt niet herkend!"
     
+def populairste_per_gemeente(df):
+    """
+    Bepaal welke politieke partij in elke gemeente heeft gewonnen
+    """
+    gemeente_uitslag_df = df.iloc[:,np.r_[0,10:47]]
+    gemeente_uitslag_df = gemeente_uitslag_df.fillna(0)
+    cols = gemeente_uitslag_df.columns.drop('RegioNaam')
+    
+    gemeente_uitslag_df[cols] = gemeente_uitslag_df[cols].astype(int)
+    
+    gemeente_uitslag_df['Winnaar'] = gemeente_uitslag_df[cols].idxmax(axis=1)
+    gemeente_winnaar = gemeente_uitslag_df.iloc[:,np.r_[0,38]]
+
+    return gemeente_winnaar
+
+def zetels_per_gewonnen_gemeente(df):
+    """
+    Zetel berekening aan de hand van winnende de partij binnen gemeentes krijgen alle stemmen daat
+    """
+    gemeente_winnaars = populairste_per_gemeente(df)
+    gemeente_count = len(gemeente_winnaars.index)
+    winnaar_count = gemeente_winnaars.groupby(['Winnaar']).count()
+    zetels = pd.DataFrame(columns=['Fractie','Zetels'])
+    zetel_per_winst = 150/gemeente_count
+
+    for index,row in winnaar_count.iterrows():
+        if round(row[0] * zetel_per_winst) > 1:
+            volle_zetels = round(row[0] * zetel_per_winst)
+            zetels = zetels.append({'Fractie': index,'Zetels': volle_zetels, 'winst_per_zetel': (volle_zetels+1)/row[0], 'totaal_winst': row[0] },ignore_index=True)
+    
+    rest_zetels = 150 - zetels['Zetels'].sum()
+
+    while rest_zetels > 0:
+        i_max = zetels['winst_per_zetel'].idxmax() # index (partijnaam) van hoogste aantal stemmen per zetel
+        zetels.loc[i_max, 'Zetels'] += 1
+        zetels.loc[i_max, 'winst_per_zetel'] = zetels.loc[i_max, 'totaal_winst'] / (zetels.loc[i_max, 'Zetels'] + 1)
+        rest_zetels -= 1
+
+    zetels = zetels.drop(columns=['totaal_winst','winst_per_zetel'])
+
+    return zetels
 
 def replace_NaN(ser):
     for i in ser.index:
