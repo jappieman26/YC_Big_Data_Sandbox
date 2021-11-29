@@ -3,13 +3,8 @@ from flask import Flask
 import Verkiezingen_functies as verfuncs
 
 
-# Het DataFrame met de stemmen inladen, en de tweede instantie van de dubbele
-# regionaam (Bergen) vervangen door Bergen NH
+# Het DataFrame met de stemmen inladen
 uitslagenDF = pd.read_csv('Uitslag_alle_gemeenten_TK20210317.csv', sep=';')
-bergen2 = uitslagenDF[uitslagenDF['RegioCode']=='G0373'].copy()
-bergen2_idx = uitslagenDF[uitslagenDF['RegioCode']=='G0373'].index[0]
-bergen2.loc[bergen2_idx, 'RegioNaam'] = 'Bergen NH'
-uitslagenDF = uitslagenDF.where(~uitslagenDF.duplicated(subset=['RegioNaam']), other=bergen2)
 
 
 app = Flask(__name__)
