@@ -158,9 +158,9 @@ def populairste_per_gemeente(df):
 
     return gemeente_winnaar
 
-def zetels_per_populairste_gemeente(df):
+def zetels_per_gewonnen_gemeente(df):
     """
-    Zetel berekening aan de hand van winnende gemeentes krijgen al hun stemmen
+    Zetel berekening aan de hand van winnende de partij binnen gemeentes krijgen alle stemmen daat
     """
     gemeente_winnaars = populairste_per_gemeente(df)
     gemeente_count = len(gemeente_winnaars.index)
