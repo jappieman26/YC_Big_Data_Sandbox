@@ -177,12 +177,13 @@ def landelijk_top3_partijen():
     """
     return landelijke_uitslag_top3().to_html()
 
-@app.route('/landelijk/top_n_partijen/<n>')
-def landelijk_top_n_partijen(n):
+@app.route('/landelijk/top_n_partijen/<aantal>')
+def landelijk_top_n_partijen(aantal):
     """
     Print de landelijke uitslag op basis vd top n partijen per gemeente.
     """
-    return landelijke_uitslag_top_n(n).to_html()
+    aantal = int(aantal)
+    return landelijke_uitslag_top_n(aantal).to_html()
 
 if __name__ == '__main__':
     app.run(port = 8000, debug=True, use_reloader=False)
