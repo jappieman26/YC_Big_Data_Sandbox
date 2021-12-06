@@ -54,8 +54,8 @@ def populairste_per_gemeente():
     return verfuncs.populairste_per_gemeente(uitslagenDF).to_html()
 
 @app.route("/alternatief/gemeente/zetels")
-def zetels_per_populairste_gemeente():
-    return verfuncs.zetels_per_populairste_gemeente(uitslagenDF).to_html() 
+def zetels_per_gewonnen_gemeente():
+    return verfuncs.zetels_per_gewonnen_gemeente(uitslagenDF).to_html() 
 
 
 if __name__ == '__main__':
