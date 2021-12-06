@@ -24,6 +24,14 @@ def get_landelijke_uitslag():
 def get_landelijke_uitslag_kiesmannen():
     return verfuncs.landelijke_uitslag_kiesmannen(uitslagenDF)
 
+@app.route('/landelijke_uitslag/top_n_partijen/<aantal>')
+def landelijk_top_n_partijen(aantal):
+    """
+    Print de landelijke uitslag op basis vd top n partijen per gemeente.
+    """
+    aantal = int(aantal)
+    return verfuncs.landelijke_uitslag_top_n(aantal).to_html()
+
 
 @app.route("/gemeente/uitslag/", methods=['GET'])
 @app.route("/gemeente/uitslag/<gemeente>", methods=['GET'])
