@@ -30,7 +30,7 @@ def landelijk_top_n_partijen(aantal):
     Print de landelijke uitslag op basis vd top n partijen per gemeente.
     """
     aantal = int(aantal)
-    return verfuncs.landelijke_uitslag_top_n(aantal).to_html()
+    return verfuncs.landelijke_uitslag_top_n(uitslagenDF, aantal).to_html()
 
 
 @app.route("/gemeente/uitslag/", methods=['GET'])

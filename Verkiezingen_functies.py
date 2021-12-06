@@ -229,7 +229,7 @@ def landelijke_uitslag_kiesmannen(uitslagenDF):
     return ("<h2>Landelijke uitslag Tweede Kamerverkiezingen 2021</h2> Op basis van een kiesdistrictstelsel met " +
             str(aantal_zetels) + " zetels." + zetel_tabel)
 
-def stem_stad_n(stad='Amsterdam', n=3):
+def stem_stad_n(df, stad='Amsterdam', n=3):
     """
     Deze functie returnt een dataframe waarin het aantal stemmen per partij vd grootste n partijen van hoog naar laag staan in een meegegeven gemeente. Amsterdam is default.
     """
@@ -241,11 +241,11 @@ def stem_stad_n(stad='Amsterdam', n=3):
     df_top_n.index.name = 'Regio'
     return df_top_n
 
-def zetels_per_n_grootste_partijen(gemeente='Amsterdam', n=3):
+def zetels_per_n_grootste_partijen(df, gemeente='Amsterdam', n=3):
     """
     Deze functie berekent het aantal zetels dat de n grootste partijen zouden hebben als alleen de stemmen van deze stad meetellen.
     """
-    data = stem_stad_n(gemeente, n)
+    data = stem_stad_n(df, gemeente, n)
     totaal_stemmen = data['GeldigeStemmen'].sum()
     totaal_zetels = 150
     kiesdeler = totaal_stemmen / totaal_zetels
@@ -274,13 +274,13 @@ def zetels_per_n_grootste_partijen(gemeente='Amsterdam', n=3):
     df_n_grootste_partijen = pd.DataFrame(data=[grootste_partijen, zetels_per_partij.values()], columns=column_names)
     return df_n_grootste_partijen
 
-def landelijke_uitslag_top_n(n=3):
+def landelijke_uitslag_top_n(df, n=3):
     """
     Deze functie telt het aantal volledige zetels op per partij die in de topn van een gemeente zijn geeindigd
     """
     landelijk = {}
     for stad in df["RegioNaam"]:
-        df_drie_grootste = zetels_per_n_grootste_partijen(stad, n)
+        df_drie_grootste = zetels_per_n_grootste_partijen(df, stad, n)
         for column in df_drie_grootste.columns:
             partij = df_drie_grootste[column].loc[0]
             zetel = df_drie_grootste[column].loc[1] / 355
