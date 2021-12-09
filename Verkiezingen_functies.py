@@ -7,7 +7,7 @@ def landelijke_uitslag(uitslagenDF):
     """
     Bereken de landelijke uitslag van de Tweede Kamerverkiezingen in het aantal
     stemmen dat iedere partij heeft gekregen, en de zetels die dat oplevert.
-    Return een string met een html-tabel met de uitslagen.
+    Return dataframe met de uitslagen.
     """
     aantal_zetels = 150
     totaal_stemmen = uitslagenDF['GeldigeStemmen'].sum()
@@ -47,16 +47,14 @@ def landelijke_uitslag(uitslagenDF):
     zetelsDF = zetelsDF.drop('stemmen per zetel', axis=1)
     zetelsDF = pd.concat([zetelsDF, partijen_zonder_zetels])
     
-    zetel_tabel = zetelsDF.to_html()
-    
-    return "<h2>Landelijke uitslag Tweede Kamerverkiezingen 2021</h2>" + zetel_tabel
+    return zetelsDF
 
 
 
 def volgorde_gemeentes(uitslagenDF, partij):
     """
     Bepaal de rangschikking van de gemeentes op basis van het aantal stemmen voor
-    een specifieke partij. Return een string met een html-tabel met de resultaten.
+    een specifieke partij. Return een dataframe met de resultaten.
     """
     partijnaam = ""
     naam_found = False
@@ -78,16 +76,15 @@ def volgorde_gemeentes(uitslagenDF, partij):
                                                key=replace_NaN(partijDF['aantal stemmen']))
         # Maak alle entries van type int (in het geval het nog floats zijn).
         sorted_partijDF = sorted_partijDF.astype(int)
-        sorted_partij_tabel = sorted_partijDF.to_html()
         
-        return "<h2>Rangschikking gemeentes naar aantal stemmen op " + partij + "</h2>" + sorted_partij_tabel
+        return sorted_partijDF
     
     
    
 def volgorde_perc_ongeldig(uitslagenDF):
     """"
     Bepaal de rangschikking van de gemeentes op basis van het percentage ongeldige stemmen.
-    Return een string met een html-tabel met de percentages ongeldige en blanco stemmen.
+    Return een dataframe met de percentages ongeldige en blanco stemmen.
     """
     ongeldig_perc_list = list(uitslagenDF['OngeldigeStemmen']/uitslagenDF['Opkomst']*100)
     blanco_perc_list = list(uitslagenDF['BlancoStemmen']/uitslagenDF['Opkomst']*100)
@@ -96,52 +93,47 @@ def volgorde_perc_ongeldig(uitslagenDF):
                                   'Blanco stemmen (%)' : blanco_perc_list}, index=list(uitslagenDF['RegioNaam']))
     
     sorted_geldigDF = geldigDF.sort_values('Ongeldige stemmen (%)')
-    sorted_geldigTabel = sorted_geldigDF.to_html()
     
-    return "<h2>Rangschikking gemeentes naar ongeldige stemmen als percentage van de totale opkomst</h2>" + sorted_geldigTabel
+    return sorted_geldigDF
 
 
 
 def perc_ongeldig_gemeente(uitslagenDF, gemeente):
     """
     Bepaal het percentage ongeldige en blanco stemmen van de totale opkomst voor
-    een bepaalde gemeente. Return deze in een html-string.
+    een bepaalde gemeente. Return deze in een tuple.
     """
-    if gemeente in list(uitslagenDF['RegioNaam']):
-        gemeente_idx = uitslagenDF[uitslagenDF['RegioNaam'] == gemeente].index[0]
-        perc_ongeldig = uitslagenDF.loc[gemeente_idx, 'OngeldigeStemmen'] / uitslagenDF.loc[gemeente_idx, 'Opkomst'] * 100
-        perc_blanco = uitslagenDF.loc[gemeente_idx, 'BlancoStemmen'] / uitslagenDF.loc[gemeente_idx, 'Opkomst'] * 100
+    
+    gemeente_idx = uitslagenDF[uitslagenDF['RegioNaam'] == gemeente].index[0]
+    perc_ongeldig = uitslagenDF.loc[gemeente_idx, 'OngeldigeStemmen'] / uitslagenDF.loc[gemeente_idx, 'Opkomst'] * 100
+    perc_blanco = uitslagenDF.loc[gemeente_idx, 'BlancoStemmen'] / uitslagenDF.loc[gemeente_idx, 'Opkomst'] * 100
         
-        return ("<h2>Ongeldige en blanco stemmen als percentage van de totale opkomst in " + gemeente + "</h2>" +
-                "Percentage ongeldig: " + str(perc_ongeldig) + "<br>" + "Percentage blanco: " + str(perc_blanco))
-        
-    else:
-        return "De gemeentenaam wordt niet herkend!"
+    percDF = pd.DataFrame(data={'Ongeldige stemmen (%)' : perc_ongeldig,
+                                'Blanco stemmen (%)' : perc_blanco}, index=[gemeente])
+    
+    return percDF
     
     
   
 def uitslag_gemeente(uitslagenDF, gemeente):
     """
     Bepaal de rangschikking van de partijen naar het aantal stemmen in een bepaalde gemeente.
-    Return een string met een html-tabel met de resultaten.
+    Return een dataframe met de resultaten.
     """
-    if gemeente in list(uitslagenDF['RegioNaam']):
         
-        gemeente_idx = uitslagenDF[uitslagenDF['RegioNaam'] == gemeente].index[0]
-        gemeenteDF = pd.DataFrame(data=list(uitslagenDF.loc[gemeente_idx, uitslagenDF.columns[10:]]),
-                                  columns=['aantal stemmen'], index=list(uitslagenDF.columns[10:]))
+    gemeente_idx = uitslagenDF[uitslagenDF['RegioNaam'] == gemeente].index[0]
+    gemeenteDF = pd.DataFrame(data=list(uitslagenDF.loc[gemeente_idx, uitslagenDF.columns[10:]]),
+                              columns=['aantal stemmen'], index=list(uitslagenDF.columns[10:]))
         
-        # Sorteer op aantal stemmen, waar NaN wordt vervangen door 0.
-        sorted_gemeenteDF = gemeenteDF.sort_values('aantal stemmen', ascending=False,
-                                                  key=replace_NaN(gemeenteDF['aantal stemmen']))
-        # Maak alle entries van type int (in het geval het nog floats zijn).
-        sorted_gemeenteDF = sorted_gemeenteDF.astype(int)
-        sorted_gemeente_tabel = sorted_gemeenteDF.to_html()
+    # Sorteer op aantal stemmen, waar NaN wordt vervangen door 0.
+    sorted_gemeenteDF = gemeenteDF.sort_values('aantal stemmen', ascending=False,
+                                               key=replace_NaN(gemeenteDF['aantal stemmen']))
+    # Maak alle entries van type int (in het geval het nog floats zijn).
+    sorted_gemeenteDF = sorted_gemeenteDF.astype(int)
         
-        return "<h2>De gesorteerde uitslag in " + gemeente + "</h2>" + sorted_gemeente_tabel
-        
-    else:
-        return "De gemeentenaam wordt niet herkend!"
+    return sorted_gemeenteDF
+
+
     
 def populairste_per_gemeente(df):
     """
@@ -190,7 +182,7 @@ def landelijke_uitslag_kiesmannen(uitslagenDF):
     """
     Bereken de landelijke uitslag van de Tweede Kamerverkiezingen als het aantal zetels wordt uitgebreid naar 1050,
     en elke gemeente op basis van zijn populatie een aantal kiesmannen toegewezen krijgt. De partij die wint in een
-    gemeente krijgt alle kiesmannen. Return een string met de uitslag in een html-tabel.
+    gemeente krijgt alle kiesmannen. Return een dataframe met de uitslag.
     """
     # Moet gelijk of hoger zijn aan het aantal gemeenten (355)
     aantal_zetels = 1050
@@ -224,10 +216,7 @@ def landelijke_uitslag_kiesmannen(uitslagenDF):
         gemeente = uitslagenDF.loc[i, 'RegioNaam']
         zetelsDF.loc[winnaar, 'Aantal zetels'] += kiesmannenDF.loc[gemeente, 'Kiesmannen']
         
-    zetel_tabel = zetelsDF.to_html()
-        
-    return ("<h2>Landelijke uitslag Tweede Kamerverkiezingen 2021</h2> Op basis van een kiesdistrictstelsel met " +
-            str(aantal_zetels) + " zetels." + zetel_tabel)
+    return zetelsDF
 
 def stem_stad_n(df, stad='Amsterdam', n=3):
     """
