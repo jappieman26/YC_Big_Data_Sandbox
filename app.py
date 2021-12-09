@@ -1,5 +1,6 @@
 import pandas as pd
 from flask import Flask
+from flask_cors import CORS
 import Verkiezingen_functies as verfuncs
 
 
@@ -8,6 +9,7 @@ uitslagenDF = pd.read_csv('Uitslag_alle_gemeenten_TK20210317.csv', sep=';')
 
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route("/" , methods=['GET'])
@@ -17,7 +19,7 @@ def hello_world():
 
 @app.route("/landelijke_uitslag/werkelijk", methods=['GET'])
 def get_landelijke_uitslag():
-    return verfuncs.landelijke_uitslag(uitslagenDF).to_html()
+    return verfuncs.landelijke_uitslag(uitslagenDF).to_json()
 
 
 @app.route("/landelijke_uitslag/kiesmannen", methods=['GET'])
