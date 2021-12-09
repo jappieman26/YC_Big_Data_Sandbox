@@ -59,8 +59,8 @@ def get_perc_ongeldig_gemeente(gemeente):
     else: return "De gemeentenaam wordt niet herkend!", 400
 
 
-@app.route("/partij/rangschikking/", methods=['GET'])
-@app.route("/partij/rangschikking/<partij>",methods=['GET'])
+@app.route("/gemeente/rangschikking/", methods=['GET'])
+@app.route("/gemeente/rangschikking/<partij>",methods=['GET'])
 def get_volgorde_gemeentes(partij=""):
     if partij == "": return "Geef in de url aan van welke partij je de rangschikking wil zien."
     else: return verfuncs.volgorde_gemeentes(uitslagenDF, partij).to_html()
