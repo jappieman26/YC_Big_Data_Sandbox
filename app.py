@@ -1,5 +1,6 @@
 import pandas as pd
 from flask import Flask
+from flask_cors import CORS
 import Verkiezingen_functies as verfuncs
 
 
@@ -8,6 +9,7 @@ uitslagenDF = pd.read_csv('Uitslag_alle_gemeenten_TK20210317.csv', sep=';')
 
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route("/" , methods=['GET'])
@@ -17,7 +19,7 @@ def hello_world():
 
 @app.route("/landelijke_uitslag/werkelijk", methods=['GET'])
 def get_landelijke_uitslag():
-    return verfuncs.landelijke_uitslag(uitslagenDF).to_html()
+    return verfuncs.landelijke_uitslag(uitslagenDF).to_json()
 
 
 @app.route("/landelijke_uitslag/kiesmannen", methods=['GET'])
@@ -32,13 +34,16 @@ def landelijk_top_n_partijen(aantal):
     aantal = int(aantal)
     return verfuncs.landelijke_uitslag_top_n(uitslagenDF, aantal).to_html()
 
+@app.route("/gemeente/list", methods=['GET'])
+def get_alle_gemeentes():
+    return uitslagenDF['RegioNaam'].to_json()
 
 @app.route("/gemeente/uitslag/", methods=['GET'])
 @app.route("/gemeente/uitslag/<gemeente>", methods=['GET'])
 def get_uitslag_gemeente(gemeente=""):
     if gemeente == "": return "Geef in de url aan van welke gemeente je de uitslag wil zien."
     elif gemeente in list(uitslagenDF['RegioNaam']):
-        return verfuncs.uitslag_gemeente(uitslagenDF, gemeente).to_html()
+        return verfuncs.uitslag_gemeente(uitslagenDF, gemeente).to_json()
     else: return "De gemeentenaam wordt niet herkend!", 400
 
 
