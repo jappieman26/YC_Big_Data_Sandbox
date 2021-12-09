@@ -34,13 +34,16 @@ def landelijk_top_n_partijen(aantal):
     aantal = int(aantal)
     return verfuncs.landelijke_uitslag_top_n(uitslagenDF, aantal).to_html()
 
+@app.route("/gemeente/list", methods=['GET'])
+def get_alle_gemeentes():
+    return uitslagenDF['RegioNaam'].to_json()
 
 @app.route("/gemeente/uitslag/", methods=['GET'])
 @app.route("/gemeente/uitslag/<gemeente>", methods=['GET'])
 def get_uitslag_gemeente(gemeente=""):
     if gemeente == "": return "Geef in de url aan van welke gemeente je de uitslag wil zien."
     elif gemeente in list(uitslagenDF['RegioNaam']):
-        return verfuncs.uitslag_gemeente(uitslagenDF, gemeente).to_html()
+        return verfuncs.uitslag_gemeente(uitslagenDF, gemeente).to_json()
     else: return "De gemeentenaam wordt niet herkend!", 400
 
 
