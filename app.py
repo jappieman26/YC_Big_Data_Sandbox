@@ -1,6 +1,11 @@
 import pandas as pd
 from flask import Flask
 from flask_cors import CORS
+from flask import Response
+import matplotlib.pyplot as plt
+import io
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
 import Verkiezingen_functies as verfuncs
 
 
@@ -73,6 +78,14 @@ def populairste_per_gemeente():
 @app.route("/alternatief/gemeente/zetels")
 def zetels_per_gewonnen_gemeente():
     return verfuncs.zetels_per_gewonnen_gemeente(uitslagenDF).to_html() 
+
+@app.route('/plotten/<n>/plot.png')
+def plot_png(n):
+    n = int(n)
+    fig = verfuncs.plot_landelijk_vs_top_n(uitslagenDF, n)
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
 
 
 if __name__ == '__main__':
