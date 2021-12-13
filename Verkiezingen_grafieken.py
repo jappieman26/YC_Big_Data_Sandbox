@@ -1,26 +1,48 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 import Verkiezingen_functies as verfuncs
 
-uitslagenDF = pd.read_csv('Uitslag_alle_gemeenten_TK20210317.csv', sep=';')
 
 
-# In[2]:
+def combineer_uitslagen(df, n=3):
+    """
+    Combineert de dataframes van landelijke_uitslag() en landelijke_uitslag_top_n.
+    """
+    new_df = verfuncs.landelijke_uitslag(df)
+    second_df = verfuncs.landelijke_uitslag_top_n(df, n)
+    new_df.insert(2, f'zetels obv top {n} partijen', [0]*len(new_df.index))
+    for partij in second_df.index:
+        zetels = second_df.loc[partij ,'zetels']
+        #if statement check if partij uit second_df is already in new_df or not and should be added. (Row insert)
+        new_df.loc[partij, f'zetels obv top {n} partijen'] = zetels
+    return new_df
 
+def plot_landelijk_vs_top_n(df, n=3):
+    """
+    Plot de huidige landelijke zetelverdeling tegen de verdeling op basis van de grootste n partijen per gemeente.
+    """
+    new_df = combineer_uitslagen(df, n)
+    i = np.arange(0, len(list(new_df.index)))
+    width = 0.4
 
-df1 = verfuncs.landelijke_uitslag(uitslagenDF)
-df2 = verfuncs.landelijke_uitslag_kiesmannen(uitslagenDF)
-df3 = verfuncs.landelijke_uitslag_top_n(uitslagenDF)
-df4 = verfuncs.zetels_per_gewonnen_gemeente(uitslagenDF)
+    fig, ax = plt.subplots(figsize=(10,5))
+    rects1 = ax.bar(i - width/2, height=new_df['zetels'], width = width, label='landelijk', color='teal')
+    rects2 = ax.bar(i + width/2, height=new_df[f'zetels obv top {n} partijen'], width = width, label=f'top {n}', color='black')
 
+    ax.set_xticks(i, list(new_df.index))
+    plt.xticks(rotation=90)
+    plt.ylabel('zetels')
+    plt.title('Zetelverdeling Tweede Kamer')
+    ax.legend()
 
-# In[14]:
+    ax.bar_label(rects1) # laat het aantal zien boven elke bar
+    ax.bar_label(rects2)
+
+    return fig
+
 
 
 def plot_uitslag(df):
@@ -30,41 +52,3 @@ def plot_uitslag(df):
     plt.title('Uitslag (totaal aantal zetels = ' + str(df['zetels'].sum()) + ')')
     plt.ylabel('Zetels')
     plt.plot()
-
-
-# In[ ]:
-
-
-def insert_lege_partijen(uitslagenDF):
-    
-
-
-# In[16]:
-
-
-plot_uitslag(df1)
-
-
-# In[17]:
-
-
-plot_uitslag(df2)
-
-
-# In[18]:
-
-
-plot_uitslag(df3)
-
-
-# In[19]:
-
-
-plot_uitslag(df4)
-
-
-# In[ ]:
-
-
-
-
