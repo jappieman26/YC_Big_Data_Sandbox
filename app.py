@@ -2,11 +2,12 @@ import pandas as pd
 from flask import Flask
 from flask_cors import CORS
 from flask import Response
-import matplotlib.pyplot as plt
 import io
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import Verkiezingen_functies as verfuncs
+import Verkiezingen_grafieken as vergrafs
 
 
 # Het DataFrame met de stemmen inladen
@@ -82,7 +83,7 @@ def zetels_per_gewonnen_gemeente():
 @app.route('/plotten/<n>/plot.png')
 def plot_png(n):
     n = int(n)
-    fig = verfuncs.plot_landelijk_vs_top_n(uitslagenDF, n)
+    fig = vergrafs.plot_landelijk_vs_top_n(uitslagenDF, n)
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
