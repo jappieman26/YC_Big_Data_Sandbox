@@ -281,7 +281,7 @@ def landelijke_uitslag_top_n(df, n=3):
             else:
                 landelijk[partij] = zetel
                 
-    my_df = pd.DataFrame(data=landelijk.values(), columns=['zetels'], index=landelijk.keys()).sort_values(["zetels"], ascending=False)
+    my_df = pd.DataFrame(data=landelijk.values(), columns=['zetels'], index=landelijk.keys())
     my_df = my_df.drop(my_df[my_df['zetels'] < 1].index)
     my_df = my_df.astype({'zetels': int})
 
@@ -300,8 +300,16 @@ def landelijke_uitslag_top_n(df, n=3):
         my_df.loc[i_max, 'stemmen per zetel'] = my_df.loc[i_max, 'stemmen'] / (my_df.loc[i_max, 'zetels'] +1)
         
     my_df = my_df.drop('stemmen per zetel', axis=1)
+    
+    # Maak een nieuw dataframe met alle partijen, en insert de zetels voor de partijen die >0 zetels hebben uit my_df.
+    zetelsDF = pd.DataFrame(columns=['zetels'], index=df.columns[10:])
+    for partij in zetelsDF.index:
+        if partij in my_df.index:
+            zetelsDF.loc[partij, 'zetels'] = my_df.loc[partij, 'zetels']
+        else:
+            zetelsDF.loc[partij, 'zetels'] = 0
         
-    return my_df.sort_values(["zetels"], ascending=False)
+    return zetelsDF
 
 
 
