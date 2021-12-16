@@ -78,19 +78,19 @@ def get_volgorde_gemeentes(partij=""):
 
 
 @app.route("/alternatief/gemeente/winnaar")
-def populairste_per_gemeente():
+def get_populairste_per_gemeente():
     return verfuncs.populairste_per_gemeente(uitslagenDF).to_html()
 
 @app.route("/alternatief/gemeente/zetels")
-def zetels_per_gewonnen_gemeente():
+def get_zetels_per_gewonnen_gemeente():
     return verfuncs.zetels_per_gewonnen_gemeente(uitslagenDF).to_html() 
 
 
 
-@app.route('/plotten/<n>/plot.png')
-def plot_png(n):
-    n = int(n)
-    fig = vergrafs.plot_landelijk_vs_top_n(uitslagenDF, n)
+@app.route('/plotten_v2/<n1>/<n2>/<optie1>/<optie2>/plot.png')
+def plot_v2(n1, n2, optie1, optie2):
+    n1, n2, optie1, optie2 = int(n1), int(n2), int(optie1), int(optie2)
+    fig = vergrafs.plot_landelijk_vs_top_n_v2(uitslagenDF, n1, n2, optie1, optie2)
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
