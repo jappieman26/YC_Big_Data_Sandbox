@@ -18,6 +18,7 @@ app = Flask(__name__)
 CORS(app)
 
 
+
 @app.route("/" , methods=['GET'])
 def hello_world():
     return "<p>Hello, World!</p>"
@@ -39,6 +40,8 @@ def landelijk_top_n_partijen(aantal):
     """
     aantal = int(aantal)
     return verfuncs.landelijke_uitslag_top_n(uitslagenDF, aantal).to_html()
+
+
 
 @app.route("/gemeente/list", methods=['GET'])
 def get_alle_gemeentes():
@@ -69,7 +72,9 @@ def get_perc_ongeldig_gemeente(gemeente):
 @app.route("/gemeente/rangschikking/<partij>",methods=['GET'])
 def get_volgorde_gemeentes(partij=""):
     if partij == "": return "Geef in de url aan van welke partij je de rangschikking wil zien."
-    else: return verfuncs.volgorde_gemeentes(uitslagenDF, partij).to_html()
+    elif partij in list(uitslagenDF.columns[10:]):
+        return verfuncs.volgorde_gemeentes(uitslagenDF, partij).to_html()
+    else: return "De partijnaam wordt niet herkend!", 400
 
 
 @app.route("/alternatief/gemeente/winnaar")
@@ -79,6 +84,8 @@ def populairste_per_gemeente():
 @app.route("/alternatief/gemeente/zetels")
 def zetels_per_gewonnen_gemeente():
     return verfuncs.zetels_per_gewonnen_gemeente(uitslagenDF).to_html() 
+
+
 
 @app.route('/plotten/<n>/plot.png')
 def plot_png(n):
