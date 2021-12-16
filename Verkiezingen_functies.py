@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
-
-
+from Provincie_per_gemeente import provincie_gemeente
 
 def landelijke_uitslag(uitslagenDF):
     """
@@ -113,8 +112,43 @@ def perc_ongeldig_gemeente(uitslagenDF, gemeente):
     
     return percDF
     
-    
-  
+def provincie_stemmen(provincie):   #deze functie pakt de lijst van gemeentes per provincie en de normale dataframe en voegt ze vervolgens samen op gemeentenaam als key.
+ #                                  #daarna wordt er op provincie geflitered en geeft df_prinvcie2 alleen de resultaten uit de normale dataframe terug voor die provincie
+    uitslagenDF = pd.read_csv(r'Uitslag_alle_gemeenten_TK20210317.csv', sep=';')
+    uitslagentweeDF = pd.read_csv(u'Gemeenten alfabetisch 2019.csv', sep=',')
+    #print(uitslagentweeDF)
+    prov_gem_df = pd.DataFrame(data=list(uitslagentweeDF['Provincienaam']), columns=['Provincienaam'], index=list(uitslagentweeDF['Gemeentenaam']))
+    prov_gem_df.index.name = 'Gemeentenaam'
+    #print(uitslagentweeDF)
+    #print(prov_gem_df)
+    df_merge = pd.merge(uitslagenDF, uitslagentweeDF, how='left', left_on=['RegioNaam'], right_on=['Gemeentenaam'])
+    #print(df_met_provincies)
+    df_provincie = df_merge[df_merge['Provincienaam'] == provincie ]
+    df_provincie2=df_provincie.iloc[:,0:47]
+    return df_provincie2
+
+def provincie_als_landelijk():     #pakt de zetelverdeling op provincie niveau en voegt deze samen tot nieuwe dataframe, met op het einde de normale landelijke uitslag.
+    uitslagentweeDF = pd.read_csv(u'Gemeenten alfabetisch 2019.csv', sep=',')
+    provincie_lijst=list(uitslagentweeDF['Provincienaam'].unique())
+    #print(provincie_lijst)
+    totaalDF = pd.DataFrame()
+    for provincie in provincie_lijst:
+        tijdelijk_df= landelijke_uitslag(provincie_stemmen(provincie))
+        #df_renamed_provincie = tijdelijk_df.rename(columns={'stemmen': 'stemmen in '+ provincie, 'zetels' : 'zetels in ' +provincie})
+        df_renamed_provincie = tijdelijk_df.rename(columns={'zetels' : 'zetels in ' +provincie})
+        df_renamed_provincie = df_renamed_provincie.iloc[:,1]
+        totaalDF =pd.merge(totaalDF, df_renamed_provincie, how='outer', left_index=True, right_index=True)
+    #print(totaalDF)
+    landelijkeDF=landelijke_uitslag(pd.read_csv(r'Uitslag_alle_gemeenten_TK20210317.csv', sep=';'))
+    landelijkeDF = landelijkeDF.rename(columns={'zetels' : 'zetels in totaal'})
+    landelijkeDF = landelijkeDF.iloc[:,1]
+    #print(landelijkeDF)
+    totaalDF =pd.merge(totaalDF, landelijkeDF, how='outer', left_index=True, right_index=True)
+    print(totaalDF.sort_values(by='zetels in totaal', ascending=False))
+
+
+provincie_als_landelijk()
+
 def uitslag_gemeente(uitslagenDF, gemeente):
     """
     Bepaal de rangschikking van de partijen naar het aantal stemmen in een bepaalde gemeente.
