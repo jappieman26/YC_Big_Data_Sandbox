@@ -86,8 +86,25 @@ def get_zetels_per_gewonnen_gemeente():
     return verfuncs.zetels_per_gewonnen_gemeente(uitslagenDF).to_html() 
 
 
+@app.route('/plotten/<optie>')
+@app.route('/plotten/2/<n>')
+def plot_enkel(optie=2, n=3):
+    optie, n = int(optie), int(n)
+    opties_dict = {
+        1: lambda df, n: verfuncs.landelijke_uitslag(df),
+        2: lambda df, n: verfuncs.landelijke_uitslag_top_n(df,n),
+        3: lambda df, n: verfuncs.landelijke_uitslag_kiesmannen(df),
+        4: lambda df, n: verfuncs.zetels_per_gewonnen_gemeente(df)
+    }
 
-@app.route('/plotten_v2/<n1>/<n2>/<optie1>/<optie2>/plot.png')
+    zetelsDF = opties_dict[optie](uitslagenDF, n)
+    fig = vergrafs.plot_uitslag(zetelsDF)
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+
+
+@app.route('/plotten_v2/<n1>/<n2>/<optie1>/<optie2>')
 def plot_v2(n1, n2, optie1, optie2):
     n1, n2, optie1, optie2 = int(n1), int(n2), int(optie1), int(optie2)
     fig = vergrafs.plot_landelijk_vs_top_n_v2(uitslagenDF, n1, n2, optie1, optie2)

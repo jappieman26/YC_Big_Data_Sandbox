@@ -30,6 +30,7 @@ def combineer_uitslagen_v15(df, n1=3, n2=3, optie_1=1, optie_2=2):
     df_combi.columns = [col_naam1, col_naam2]
     return df_combi[(df_combi[col_naam1] != 0) | (df_combi[col_naam2] != 0)], naam1, naam2
 
+
 def plot_landelijk_vs_top_n_v2(df, n1=3, n2=3, optie1=1, optie2=2, log=False):
     """
     Plot 2 verschillende zetelverdeelsleutels tegen elkaar.
@@ -57,11 +58,14 @@ def plot_landelijk_vs_top_n_v2(df, n1=3, n2=3, optie1=1, optie2=2, log=False):
     return fig
 
 
-
 def plot_uitslag(df):
-    plt.figure(figsize=(15,10))                  # totale figuur
-    plt.bar(df.index, df['zetels'] )             # data x & y as
-    plt.xticks(rotation=90)                      # leesbaarheid x as labels (90 graden draaien)
+    fig, ax = plt.subplots(figsize=(10,7))             # maak het figuur (fig) en de subplot (ax)
+    labels = df.index
+    x_pos = range(len(labels))
+    bars = ax.bar(x_pos, df['zetels'] )                 # data x & y as
+    ax.set_xticks(x_pos, labels, rotation=90)           # x-as labels (90 graden draaien voor leesbaarheid)
+    ax.bar_label(bars)                                  # labels aan de bars toevoegen; neemt automatisch de waardes van de data in de bars
     plt.title('Uitslag (totaal aantal zetels = ' + str(df['zetels'].sum()) + ')')
-    plt.ylabel('Zetels')
-    plt.plot()
+    ax.set_ylabel('Zetels')
+    plt.close()                                         # voorkomt dubbele print
+    return fig
