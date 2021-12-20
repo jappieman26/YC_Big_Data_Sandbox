@@ -2,6 +2,7 @@ import pandas as pd
 from flask import Flask
 from flask_cors import CORS
 from flask import Response
+from flask import jsonify
 import io
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -12,6 +13,14 @@ import Verkiezingen_grafieken as vergrafs
 
 # Het DataFrame met de stemmen inladen
 uitslagenDF = pd.read_csv('Uitslag_alle_gemeenten_TK20210317.csv', sep=';')
+
+
+verdeelsleutels_dict = {
+    'landelijk': verfuncs.landelijke_uitslag,
+    'kiesmannen': verfuncs.landelijke_uitslag_kiesmannen,
+    'top n': verfuncs.landelijke_uitslag_top_n,
+    'per gemeente': verfuncs.zetels_per_gewonnen_gemeente
+}
 
 
 app = Flask(__name__)
@@ -93,7 +102,13 @@ def get_populairste_per_gemeente():
 
 @app.route("/alternatief/gemeente/zetels")
 def get_zetels_per_gewonnen_gemeente():
-    return verfuncs.zetels_per_gewonnen_gemeente(uitslagenDF).to_html() 
+    return verfuncs.zetels_per_gewonnen_gemeente(uitslagenDF).to_html()
+
+
+@app.route("/verdeelsleutels/list", methods=['GET'])
+def get_verdeelsleutels_list():
+    verdeelsleutels_list = list(verdeelsleutels_dict.keys())
+    return jsonify(verdeelsleutels_list)
 
 
 @app.route('/plotten/<optie>')
