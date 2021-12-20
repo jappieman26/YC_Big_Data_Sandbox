@@ -59,7 +59,7 @@ def plot_landelijk_vs_top_n_v2(df, n1=3, n2=3, optie1=1, optie2=2, log=False):
 
 
 def plot_uitslag(df):
-    fig, ax = plt.subplots(figsize=(10,7))             # maak het figuur (fig) en de subplot (ax)
+    fig, ax = plt.subplots(figsize=(10,7))              # maak het figuur (fig) en de subplot (ax)
     labels = df.index
     x_pos = range(len(labels))
     bars = ax.bar(x_pos, df['zetels'] )                 # data x & y as
@@ -67,5 +67,6 @@ def plot_uitslag(df):
     ax.bar_label(bars)                                  # labels aan de bars toevoegen; neemt automatisch de waardes van de data in de bars
     plt.title('Uitslag (totaal aantal zetels = ' + str(df['zetels'].sum()) + ')')
     ax.set_ylabel('Zetels')
+    plt.tight_layout()                                  # zorgt ervoor dat de labels niet afgesneden worden in de uiteindelijke png
     plt.close()                                         # voorkomt dubbele print
     return fig

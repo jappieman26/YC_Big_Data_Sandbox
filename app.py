@@ -1,8 +1,6 @@
 import pandas as pd
-from flask import Flask
 from flask_cors import CORS
-from flask import Response
-from flask import jsonify
+from flask import Flask, Response, request, jsonify
 import io
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -78,7 +76,7 @@ def get_perc_ongeldig_gemeente(gemeente):
 
 
 @app.route("/gemeente/rangschikking/", methods=['GET'])
-@app.route("/gemeente/rangschikking/<partij>",methods=['GET'])
+@app.route("/gemeente/rangschikking/<partij>", methods=['GET'])
 def get_volgorde_gemeentes(partij=""):
     if partij == "": return "Geef in de url aan van welke partij je de rangschikking wil zien."
     else: 
@@ -111,18 +109,16 @@ def get_verdeelsleutels_list():
     return jsonify(verdeelsleutels_list)
 
 
-@app.route('/plotten/<optie>')
-@app.route('/plotten/2/<n>')
-def plot_enkel(optie=2, n=3):
-    optie, n = int(optie), int(n)
-    opties_dict = {
-        1: lambda df, n: verfuncs.landelijke_uitslag(df),
-        2: lambda df, n: verfuncs.landelijke_uitslag_top_n(df,n),
-        3: lambda df, n: verfuncs.landelijke_uitslag_kiesmannen(df),
-        4: lambda df, n: verfuncs.zetels_per_gewonnen_gemeente(df)
-    }
+@app.route('/plot_los', methods=['POST'])
+def plot_enkel():
+    request_dict = request.get_json()
+    verdeelsleutel_keyw = request_dict['type']
+    
+    if verdeelsleutel_keyw == 'top n':
+        n = int(request_dict['opties'])
+        zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](uitslagenDF, n)
+    else: zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](uitslagenDF)
 
-    zetelsDF = opties_dict[optie](uitslagenDF, n)
     fig = vergrafs.plot_uitslag(zetelsDF)
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
