@@ -55,29 +55,17 @@ def volgorde_gemeentes(uitslagenDF, partij):
     """
     Bepaal de rangschikking van de gemeentes op basis van het aantal stemmen voor
     een specifieke partij. Return een dataframe met de resultaten.
-    """
-    partijnaam = ""
-    naam_found = False
-    
-    for vol_naam in uitslagenDF.columns[10:]:
-        if partij in vol_naam:
-            partijnaam = vol_naam
-            naam_found = True
-            
-    if not naam_found:
-        return "De partijnaam wordt niet herkend!"
-    
-    else:        
-        partijDF = pd.DataFrame(data=list(uitslagenDF[partijnaam]), columns=['stemmen'],
-                                index=list(uitslagenDF['RegioNaam']))
+    """    
+    partijDF = pd.DataFrame(data=list(uitslagenDF[partij]), columns=['stemmen'],
+                            index=list(uitslagenDF['RegioNaam']))
         
-        # Vervang NaN values door 0 en sorteer op aantal stemmen.
-        partijDF.replace(np.nan, 0, inplace=True)
-        sorted_partijDF = partijDF.sort_values('stemmen', ascending=False)
-        # Maak alle entries van type int (in het geval het nog floats zijn).
-        sorted_partijDF = sorted_partijDF.astype(int)
+    # Vervang NaN values door 0 en sorteer op aantal stemmen.
+    partijDF.replace(np.nan, 0, inplace=True)
+    sorted_partijDF = partijDF.sort_values('stemmen', ascending=False)
+    # Maak alle entries van type int (in het geval het nog floats zijn).
+    sorted_partijDF = sorted_partijDF.astype(int)
         
-        return sorted_partijDF
+    return sorted_partijDF
     
     
    

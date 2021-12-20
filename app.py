@@ -72,9 +72,19 @@ def get_perc_ongeldig_gemeente(gemeente):
 @app.route("/gemeente/rangschikking/<partij>",methods=['GET'])
 def get_volgorde_gemeentes(partij=""):
     if partij == "": return "Geef in de url aan van welke partij je de rangschikking wil zien."
-    elif partij in list(uitslagenDF.columns[10:]):
-        return verfuncs.volgorde_gemeentes(uitslagenDF, partij).to_html()
-    else: return "De partijnaam wordt niet herkend!", 400
+    else: 
+        partijnaam = ""
+        naam_found = False
+    
+        for vol_naam in uitslagenDF.columns[10:]:
+          if partij in vol_naam:
+                partijnaam = vol_naam
+                naam_found = True
+
+        if not naam_found:
+            return "De partijnaam wordt niet herkend!", 400
+        else:
+            return verfuncs.volgorde_gemeentes(uitslagenDF, partijnaam).to_html()
 
 
 @app.route("/alternatief/gemeente/winnaar")
