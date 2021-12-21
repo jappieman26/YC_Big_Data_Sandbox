@@ -115,7 +115,7 @@ def provincie_stemmen(provincie):   #deze functie pakt de lijst van gemeentes pe
     df_provincie2=df_provincie.iloc[:,0:47]
     return df_provincie2
 
-def provincie_als_landelijk(inputDrenthe,inputNoord_Holland,inputGelderland,inputFriesland,Zuid_Holland,inputOverijssel,inputFlevoland,Noord_Brabant,inputUtrecht,inputGroningen,inputLimburg,inputZeeland):     #pakt de zetelverdeling op provincie niveau en voegt deze samen tot nieuwe dataframe, met op het einde de normale landelijke uitslag.
+def provincie_als_landelijk(provincie_inputs):     #pakt de zetelverdeling op provincie niveau en voegt deze samen tot nieuwe dataframe, met op het einde de normale landelijke uitslag.
     uitslagentweeDF = pd.read_csv(u'Gemeenten alfabetisch 2019.csv', sep=',')
     provincie_lijst=list(uitslagentweeDF['Provincienaam'].unique())
     #print(provincie_lijst)
@@ -162,15 +162,16 @@ def provincie_als_landelijk(inputDrenthe,inputNoord_Holland,inputGelderland,inpu
     totaal3DF = totaal2DF.sort_values(by='zetels in totaal', ascending=False)
     totaal4DF = totaal3DF.iloc[:,0:12]
     series_gewichten2= series_gewichten[0:12]
-    inputs_gewichten = pd.Series([inputDrenthe,inputNoord_Holland,inputGelderland,inputFriesland,Zuid_Holland,inputOverijssel,inputFlevoland,Noord_Brabant,inputUtrecht,inputGroningen,inputLimburg,inputZeeland],index=series_gewichten2.index) 
+    inputs_gewichten = pd.Series([provincie_inputs['Drenthe'],provincie_inputs['Noord_Holland'],provincie_inputs['Gelderland'],provincie_inputs['Friesland'],provincie_inputs['Zuid_Holland'],provincie_inputs['Overijssel'],provincie_inputs['Flevoland'],provincie_inputs['Noord_Brabant'],provincie_inputs['Utrecht'],provincie_inputs['Groningen'],provincie_inputs['Limburg'],provincie_inputs['Zeeland']],index=series_gewichten2.index) 
     series_gewichten3=series_gewichten2*inputs_gewichten
-
+    print(series_gewichten2)
     totaal5DF = totaal4DF.dot(series_gewichten3.to_numpy())
 
     totaal6DF = totaal5DF/totaal5DF.sum()*150
-    return(totaal6DF.to_frame().to_html())
+    totaal6DF = (totaal6DF+0.4).astype(int)
+    print(totaal6DF.sum())
+    return(totaal6DF.to_frame())
 
-provincie_als_landelijk(1,1,1,1,1,1,1,1,1,1,1,1)
 
 def uitslag_gemeente(uitslagenDF, gemeente):
     """

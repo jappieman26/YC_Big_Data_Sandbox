@@ -20,6 +20,9 @@ verdeelsleutels_dict = {
     'per gemeente': verfuncs.zetels_per_gewonnen_gemeente
 }
 
+provincie_list =['Drenthe','Noord_Holland','Gelderland','Friesland','Zuid_Holland','Overijssel','Flevoland','Noord_Brabant','Utrecht','Groningen','Limburg','Zeeland']
+
+#inputDrenthe,inputNoord_Holland,inputGelderland,inputFriesland,Zuid_Holland,inputOverijssel,inputFlevoland,Noord_Brabant,inputUtrecht,inputGroningen,inputLimburg,inputZeeland
 
 app = Flask(__name__)
 CORS(app)
@@ -108,6 +111,14 @@ def get_verdeelsleutels_list():
     verdeelsleutels_list = list(verdeelsleutels_dict.keys())
     return jsonify(verdeelsleutels_list)
 
+@app.route("/provincies/list", methods=['GET'])
+def get_provincies_list():
+    return jsonify(provincie_list)
+
+@app.route("/landelijke_uitslag/provincies", methods=['POST'])
+def get_provincie_als_landelijk():
+    request_provincies = request.get_json()
+    return verfuncs.provincie_als_landelijk(request_provincies).to_html()
 
 @app.route('/plot_los', methods=['POST'])
 def plot_enkel():
