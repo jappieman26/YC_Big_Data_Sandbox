@@ -115,27 +115,62 @@ def provincie_stemmen(provincie):   #deze functie pakt de lijst van gemeentes pe
     df_provincie2=df_provincie.iloc[:,0:47]
     return df_provincie2
 
-def provincie_als_landelijk():     #pakt de zetelverdeling op provincie niveau en voegt deze samen tot nieuwe dataframe, met op het einde de normale landelijke uitslag.
+def provincie_als_landelijk(inputDrenthe,inputNoord_Holland,inputGelderland,inputFriesland,Zuid_Holland,inputOverijssel,inputFlevoland,Noord_Brabant,inputUtrecht,inputGroningen,inputLimburg,inputZeeland):     #pakt de zetelverdeling op provincie niveau en voegt deze samen tot nieuwe dataframe, met op het einde de normale landelijke uitslag.
     uitslagentweeDF = pd.read_csv(u'Gemeenten alfabetisch 2019.csv', sep=',')
     provincie_lijst=list(uitslagentweeDF['Provincienaam'].unique())
     #print(provincie_lijst)
     totaalDF = pd.DataFrame()
     for provincie in provincie_lijst:
         tijdelijk_df= landelijke_uitslag(provincie_stemmen(provincie))
-        #df_renamed_provincie = tijdelijk_df.rename(columns={'stemmen': 'stemmen in '+ provincie, 'zetels' : 'zetels in ' +provincie})
-        df_renamed_provincie = tijdelijk_df.rename(columns={'zetels' : 'zetels in ' +provincie})
-        df_renamed_provincie = df_renamed_provincie.iloc[:,1]
+        df_renamed_provincie = tijdelijk_df.rename(columns={'stemmen': 'stemmen in '+ provincie})
+        #df_renamed_provincie = tijdelijk_df.rename(columns={'zetels' : 'zetels in ' +provincie})
+        df_renamed_provincie = df_renamed_provincie.iloc[:,0]
         totaalDF =pd.merge(totaalDF, df_renamed_provincie, how='outer', left_index=True, right_index=True)
     #print(totaalDF)
     landelijkeDF=landelijke_uitslag(pd.read_csv(r'Uitslag_alle_gemeenten_TK20210317.csv', sep=';'))
-    landelijkeDF = landelijkeDF.rename(columns={'zetels' : 'zetels in totaal'})
-    landelijkeDF = landelijkeDF.iloc[:,1]
+    #print(landelijkeDF)
+
+    #landelijkeDF = landelijkeDF.rename(columns={'zetels' : 'zetels in totaal'})
+    landelijkeDF = landelijkeDF.rename(columns={'stemmen' : 'stemmen in totaal'})
+    landelijkeDF = landelijkeDF.iloc[:,0]   #pakt de rij met stemmen
     #print(landelijkeDF)
     totaalDF =pd.merge(totaalDF, landelijkeDF, how='outer', left_index=True, right_index=True)
-    print(totaalDF.sort_values(by='zetels in totaal', ascending=False))
+    #print(totaalDF.sort_values(by='stemmen in totaal', ascending=False))
+    tabelmetstemmen2DF = totaalDF.sort_values(by='stemmen in totaal', ascending=False)
+    seriesmetstemmenDF= tabelmetstemmen2DF.sum()
+    series_gewichten= seriesmetstemmenDF/seriesmetstemmenDF[12]
+    # gedeelte voor zetels
+    uitslagentweeDF = pd.read_csv(u'Gemeenten alfabetisch 2019.csv', sep=',')
+    provincie_lijst=list(uitslagentweeDF['Provincienaam'].unique())
+    #print(provincie_lijst)
+    totaal2DF = pd.DataFrame()
+    for provincie in provincie_lijst:
+        tijdelijk_df= landelijke_uitslag(provincie_stemmen(provincie))
+        #df_renamed_provincie = tijdelijk_df.rename(columns={'stemmen': 'stemmen in '+ provincie})
+        df_renamed_provincie = tijdelijk_df.rename(columns={'zetels' : 'zetels in ' +provincie})
+        df_renamed_provincie = df_renamed_provincie.iloc[:,1]
+        totaal2DF =pd.merge(totaal2DF, df_renamed_provincie, how='outer', left_index=True, right_index=True)
+    #print(totaal2DF)
+    landelijkeDF=landelijke_uitslag(pd.read_csv(r'Uitslag_alle_gemeenten_TK20210317.csv', sep=';'))
+    #print(landelijkeDF)
 
+    landelijkeDF = landelijkeDF.rename(columns={'zetels' : 'zetels in totaal'})
+    #landelijkeDF = landelijkeDF.rename(columns={'stemmen' : 'stemmen in totaal'})
+    landelijkeDF = landelijkeDF.iloc[:,1]   #pakt de rij met stemmen
+    #print(landelijkeDF)
+    totaal2DF =pd.merge(totaal2DF, landelijkeDF, how='outer', left_index=True, right_index=True)
+    totaal3DF = totaal2DF.sort_values(by='zetels in totaal', ascending=False)
+    totaal4DF = totaal3DF.iloc[:,0:12]
+    series_gewichten2= series_gewichten[0:12]
+    inputs_gewichten = pd.Series([inputDrenthe,inputNoord_Holland,inputGelderland,inputFriesland,Zuid_Holland,inputOverijssel,inputFlevoland,Noord_Brabant,inputUtrecht,inputGroningen,inputLimburg,inputZeeland],index=series_gewichten2.index) 
+    series_gewichten3=series_gewichten2*inputs_gewichten
 
-provincie_als_landelijk()
+    totaal5DF = totaal4DF.dot(series_gewichten3.to_numpy())
+
+    totaal6DF = totaal5DF/totaal5DF.sum()*150
+    return(totaal6DF.to_frame().to_html())
+
+provincie_als_landelijk(1,1,1,1,1,1,1,1,1,1,1,1)
 
 def uitslag_gemeente(uitslagenDF, gemeente):
     """
