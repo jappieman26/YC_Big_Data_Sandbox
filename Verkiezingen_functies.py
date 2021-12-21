@@ -54,29 +54,17 @@ def volgorde_gemeentes(uitslagenDF, partij):
     """
     Bepaal de rangschikking van de gemeentes op basis van het aantal stemmen voor
     een specifieke partij. Return een dataframe met de resultaten.
-    """
-    partijnaam = ""
-    naam_found = False
-    
-    for vol_naam in uitslagenDF.columns[10:]:
-        if partij in vol_naam:
-            partijnaam = vol_naam
-            naam_found = True
-            
-    if not naam_found:
-        return "De partijnaam wordt niet herkend!"
-    
-    else:        
-        partijDF = pd.DataFrame(data=list(uitslagenDF[partijnaam]), columns=['stemmen'],
-                                index=list(uitslagenDF['RegioNaam']))
+    """    
+    partijDF = pd.DataFrame(data=list(uitslagenDF[partij]), columns=['stemmen'],
+                            index=list(uitslagenDF['RegioNaam']))
         
-        # Sorteer op aantal stemmen, waar NaN wordt vervangen door 0.
-        sorted_partijDF = partijDF.sort_values('stemmen', ascending=False,
-                                               key=replace_NaN(partijDF['stemmen']))
-        # Maak alle entries van type int (in het geval het nog floats zijn).
-        sorted_partijDF = sorted_partijDF.astype(int)
+    # Vervang NaN values door 0 en sorteer op aantal stemmen.
+    partijDF.replace(np.nan, 0, inplace=True)
+    sorted_partijDF = partijDF.sort_values('stemmen', ascending=False)
+    # Maak alle entries van type int (in het geval het nog floats zijn).
+    sorted_partijDF = sorted_partijDF.astype(int)
         
-        return sorted_partijDF
+    return sorted_partijDF
     
     
    
@@ -159,9 +147,9 @@ def uitslag_gemeente(uitslagenDF, gemeente):
     gemeenteDF = pd.DataFrame(data=list(uitslagenDF.loc[gemeente_idx, uitslagenDF.columns[10:]]),
                               columns=['stemmen'], index=list(uitslagenDF.columns[10:]))
         
-    # Sorteer op aantal stemmen, waar NaN wordt vervangen door 0.
-    sorted_gemeenteDF = gemeenteDF.sort_values('stemmen', ascending=False,
-                                               key=replace_NaN(gemeenteDF['stemmen']))
+    # Vervang NaN values door 0 en sorteer op aantal stemmen.
+    gemeenteDF.replace(np.nan, 0, inplace=True)
+    sorted_gemeenteDF = gemeenteDF.sort_values('stemmen', ascending=False)
     # Maak alle entries van type int (in het geval het nog floats zijn).
     sorted_gemeenteDF = sorted_gemeenteDF.astype(int)
         
@@ -245,7 +233,7 @@ def landelijke_uitslag_kiesmannen(uitslagenDF):
     
     for i in uitslagenDF.index:
         temp_ser = uitslagenDF.loc[i, 'VVD':'De Groenen']
-        replace_NaN(temp_ser)
+        temp_ser.replace(np.nan, 0, inplace=True)
         temp_ser = temp_ser.astype(int)
         winnaar = temp_ser.idxmax()
         gemeente = uitslagenDF.loc[i, 'RegioNaam']
@@ -344,10 +332,3 @@ def landelijke_uitslag_top_n(df, n=3):
             zetelsDF.loc[partij, 'zetels'] = 0
         
     return zetelsDF
-
-
-
-def replace_NaN(ser):
-    for i in ser.index:
-        if np.isnan(ser[i]):
-            ser[i] = 0
