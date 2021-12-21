@@ -1,6 +1,10 @@
+from pycallgraph2 import PyCallGraph
+from pycallgraph2.output import GraphvizOutput
+
 import pandas as pd
+from flask import Flask
 from flask_cors import CORS
-from flask import Flask, Response, request, jsonify
+from flask import Response
 import io
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -9,20 +13,10 @@ import Verkiezingen_functies as verfuncs
 import Verkiezingen_grafieken as vergrafs
 
 
+
 # Het DataFrame met de stemmen inladen
 uitslagenDF = pd.read_csv('Uitslag_alle_gemeenten_TK20210317.csv', sep=';')
 
-
-verdeelsleutels_dict = {
-    'landelijk': verfuncs.landelijke_uitslag,
-    'kiesmannen': verfuncs.landelijke_uitslag_kiesmannen,
-    'top n': verfuncs.landelijke_uitslag_top_n,
-    'per gemeente': verfuncs.zetels_per_gewonnen_gemeente
-}
-
-provincie_list =['Drenthe','Noord_Holland','Gelderland','Friesland','Zuid_Holland','Overijssel','Flevoland','Noord_Brabant','Utrecht','Groningen','Limburg','Zeeland']
-
-#inputDrenthe,inputNoord_Holland,inputGelderland,inputFriesland,Zuid_Holland,inputOverijssel,inputFlevoland,Noord_Brabant,inputUtrecht,inputGroningen,inputLimburg,inputZeeland
 
 app = Flask(__name__)
 CORS(app)
@@ -79,71 +73,45 @@ def get_perc_ongeldig_gemeente(gemeente):
 
 
 @app.route("/gemeente/rangschikking/", methods=['GET'])
-@app.route("/gemeente/rangschikking/<partij>", methods=['GET'])
+@app.route("/gemeente/rangschikking/<partij>",methods=['GET'])
 def get_volgorde_gemeentes(partij=""):
     if partij == "": return "Geef in de url aan van welke partij je de rangschikking wil zien."
-    else: 
-        partijnaam = ""
-        naam_found = False
-    
-        for vol_naam in uitslagenDF.columns[10:]:
-          if partij in vol_naam:
-                partijnaam = vol_naam
-                naam_found = True
-
-        if not naam_found:
-            return "De partijnaam wordt niet herkend!", 400
-        else:
-            return verfuncs.volgorde_gemeentes(uitslagenDF, partijnaam).to_html()
+    elif partij in list(uitslagenDF.columns[10:]):
+        return verfuncs.volgorde_gemeentes(uitslagenDF, partij).to_html()
+    else: return "De partijnaam wordt niet herkend!", 400
 
 
 @app.route("/alternatief/gemeente/winnaar")
-def get_populairste_per_gemeente():
+def populairste_per_gemeente():
     return verfuncs.populairste_per_gemeente(uitslagenDF).to_html()
 
 @app.route("/alternatief/gemeente/zetels")
-def get_zetels_per_gewonnen_gemeente():
-    return verfuncs.zetels_per_gewonnen_gemeente(uitslagenDF).to_html()
+def zetels_per_gewonnen_gemeente():
+    return verfuncs.zetels_per_gewonnen_gemeente(uitslagenDF).to_html() 
 
 
-@app.route("/verdeelsleutels/list", methods=['GET'])
-def get_verdeelsleutels_list():
-    verdeelsleutels_list = list(verdeelsleutels_dict.keys())
-    return jsonify(verdeelsleutels_list)
 
-@app.route("/provincies/list", methods=['GET'])
-def get_provincies_list():
-    return jsonify(provincie_list)
-
-@app.route("/landelijke_uitslag/provincies", methods=['POST'])
-def get_provincie_als_landelijk():
-    request_provincies = request.get_json()
-    return verfuncs.provincie_als_landelijk(request_provincies).to_html()
-
-@app.route('/plot_los', methods=['POST'])
-def plot_enkel():
-    request_dict = request.get_json()
-    verdeelsleutel_keyw = request_dict['type']
-    
-    if verdeelsleutel_keyw == 'top n':
-        n = int(request_dict['opties'])
-        zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](uitslagenDF, n)
-    else: zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](uitslagenDF)
-
-    fig = vergrafs.plot_uitslag(zetelsDF)
-    output = io.BytesIO()
-    FigureCanvas(fig).print_png(output)
-    return Response(output.getvalue(), mimetype='image/png')
-
-
-@app.route('/plotten_v2/<n1>/<n2>/<optie1>/<optie2>')
-def plot_v2(n1, n2, optie1, optie2):
-    n1, n2, optie1, optie2 = int(n1), int(n2), int(optie1), int(optie2)
-    fig = vergrafs.plot_landelijk_vs_top_n_v2(uitslagenDF, n1, n2, optie1, optie2)
+@app.route('/plotten/<n>/plot.png')
+def plot_png(n):
+    n = int(n)
+    fig = vergrafs.plot_landelijk_vs_top_n(uitslagenDF, n)
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
 
 
 if __name__ == '__main__':
-    app.run(port=8000,debug=True)
+    with PyCallGraph(output=GraphvizOutput()):
+        #get_landelijke_uitslag()
+        #get_landelijke_uitslag_kiesmannen()
+        #landelijk_top_n_partijen(4)
+        #get_alle_gemeentes()
+        # get_uitslag_gemeente(gemeente="Utrucht")
+        # get_volgorde_perc_ongeldig()
+        # get_perc_ongeldig_gemeente("Utrucht")
+        # get_volgorde_gemeentes(partij="VVD")
+        # populairste_per_gemeente()
+        # zetels_per_gewonnen_gemeente()
+        plot_png(3)
+        #app.run(port=8000,debug=True)
+
