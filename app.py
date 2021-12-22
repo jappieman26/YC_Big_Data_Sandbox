@@ -118,7 +118,7 @@ def get_provincies_list():
 @app.route("/landelijke_uitslag/provincies", methods=['POST'])
 def get_provincie_als_landelijk():
     request_provincies = request.get_json()
-    return verfuncs.provincie_als_landelijk(request_provincies).to_html()
+    return verfuncs.provincie_als_landelijk(request_provincies).to_json()
 
 @app.route('/plot_los', methods=['POST'])
 def plot_enkel():
