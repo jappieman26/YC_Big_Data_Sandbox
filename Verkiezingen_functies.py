@@ -162,7 +162,7 @@ def provincie_als_landelijk(provincie_inputs):     #pakt de zetelverdeling op pr
     totaal3DF = totaal2DF.sort_values(by='zetels in totaal', ascending=False)
     totaal4DF = totaal3DF.iloc[:,0:12]
     series_gewichten2= series_gewichten[0:12]
-    inputs_gewichten = pd.Series([provincie_inputs['Drenthe'],provincie_inputs['Noord_Holland'],provincie_inputs['Gelderland'],provincie_inputs['Friesland'],provincie_inputs['Zuid_Holland'],provincie_inputs['Overijssel'],provincie_inputs['Flevoland'],provincie_inputs['Noord_Brabant'],provincie_inputs['Utrecht'],provincie_inputs['Groningen'],provincie_inputs['Limburg'],provincie_inputs['Zeeland']],index=series_gewichten2.index) 
+    inputs_gewichten = pd.Series([int(provincie_inputs['Drenthe']),int(provincie_inputs['Noord_Holland']),int(provincie_inputs['Gelderland']),int(provincie_inputs['Friesland']),int(provincie_inputs['Zuid_Holland']),int(provincie_inputs['Overijssel']),int(provincie_inputs['Flevoland']),int(provincie_inputs['Noord_Brabant']),int(provincie_inputs['Utrecht']),int(provincie_inputs['Groningen']),int(provincie_inputs['Limburg']),int(provincie_inputs['Zeeland'])],index=series_gewichten2.index) 
     series_gewichten3=series_gewichten2*inputs_gewichten
     print(series_gewichten2)
     totaal5DF = totaal4DF.dot(series_gewichten3.to_numpy())
