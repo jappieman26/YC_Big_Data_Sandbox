@@ -1,3 +1,4 @@
+from logging import error
 import pandas as pd
 import numpy as np
 from Provincie_per_gemeente import provincie_gemeente
@@ -100,7 +101,6 @@ def perc_ongeldig_gemeente(uitslagenDF, gemeente):
     
     return percDF
     
-
 def provincie_stemmen(provincie):   #deze functie pakt de lijst van gemeentes per provincie en de normale dataframe en voegt ze vervolgens samen op gemeentenaam als key.
  #                                  #daarna wordt er op provincie geflitered en geeft df_prinvcie2 alleen de resultaten uit de normale dataframe terug voor die provincie
     uitslagenDF = pd.read_csv(r'Uitslag_alle_gemeenten_TK20210317.csv', sep=';')
@@ -165,14 +165,24 @@ def provincie_als_landelijk(provincie_inputs):     #pakt de zetelverdeling op pr
     series_gewichten2= series_gewichten[0:12]
     inputs_gewichten = pd.Series([int(provincie_inputs['Drenthe']),int(provincie_inputs['Noord_Holland']),int(provincie_inputs['Gelderland']),int(provincie_inputs['Friesland']),int(provincie_inputs['Zuid_Holland']),int(provincie_inputs['Overijssel']),int(provincie_inputs['Flevoland']),int(provincie_inputs['Noord_Brabant']),int(provincie_inputs['Utrecht']),int(provincie_inputs['Groningen']),int(provincie_inputs['Limburg']),int(provincie_inputs['Zeeland'])],index=series_gewichten2.index) 
     series_gewichten3=series_gewichten2*inputs_gewichten
-    print(series_gewichten2)
     totaal5DF = totaal4DF.dot(series_gewichten3.to_numpy())
+    test2 = totaal5DF.to_frame(name='zetels in totaal')
 
-    totaal6DF = totaal5DF/totaal5DF.sum()*150
-    totaal6DF = (totaal6DF+0.4).astype(int)
-    totaal6DF = totaal6DF.to_frame()
-    totaal6DF.columns = ['zetels']
-    return(totaal6DF)
+    test3 = test2/test2.sum()*150
+    test4 = test3.astype(int).round(0)
+    test5= test3 % 1
+    test6 = test5.sort_values(by='zetels in totaal', ascending=False)
+    restzetels = 150 - test4.sum()
+    test7 = test6.head(int(restzetels))
+    
+    for index, row in test7.iterrows():
+        test4.loc[index] +=1
+
+    test4.columns = ['zetels']
+    print(test4)
+    return(test4)
+
+
 
 def uitslag_gemeente(uitslagenDF, gemeente):
     """
@@ -369,7 +379,6 @@ def landelijke_uitslag_top_n(df, n=3):
             zetelsDF.loc[partij, 'zetels'] = 0
         
     return zetelsDF
-
 def leesjson(data):
     dict1, dict2 = data["sleutels"]
     optie1 = dict1["type"]
