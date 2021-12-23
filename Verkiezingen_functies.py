@@ -368,3 +368,14 @@ def landelijke_uitslag_top_n(df, n=3):
             zetelsDF.loc[partij, 'zetels'] = 0
         
     return zetelsDF
+
+def leesjson(data):
+    dict1, dict2 = data["sleutels"]
+    optie1 = dict1["type"]
+    optie2 = dict2["type"]
+    n1, n2 = 0, 0 
+    if 'opties' in dict1.keys():
+        n1 = dict1['opties']
+    if 'opties' in dict2.keys():
+        n2 = dict2['opties']
+    return optie1, optie2, n1, n2
