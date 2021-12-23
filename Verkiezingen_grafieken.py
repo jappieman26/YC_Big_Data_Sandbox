@@ -30,20 +30,20 @@ def combineer_uitslagen_v15(df, n1=3, n2=3, optie_1='landelijk', optie_2='top n'
     return df_combi[(df_combi.iloc[:,0] != 0) | (df_combi.iloc[:,1] != 0)], naam1, naam2
 
 
-def plot_landelijk_vs_top_n_v2(df, n1=3, n2=3, optie1='top n', optie2='top n', log=False):
+def plot_landelijk_vs_top_n_v2(df=uitslagenDF, n1=3, n2=3, optie1='top n', optie2='top n', log=False):
     """
     Plot de huidige landelijke zetelverdeling tegen de verdeling op basis van de grootste n partijen per gemeente.
     """
     combi_df, naam1, naam2 = combineer_uitslagen_v15(df, n1, n2, optie1, optie2)
-    col1 = combi_df.columns[0]
-    col2 = combi_df.columns[1]
+
     i = np.arange(0, len(list(combi_df.index))) #space the x axis labels
     width = 0.4
 
     fig, ax = plt.subplots(figsize=(10,5))
     fig.subplots_adjust(hspace = 1, wspace = .1)
-    rects1 = ax.bar(i - width/2, height=combi_df[col1], width = width, label=naam1, color='teal')
-    rects2 = ax.bar(i + width/2, height=combi_df[col2], width = width, label=naam2, color='black')
+
+    rects1 = ax.bar(i - width/2, height=combi_df.iloc[:,0], width = width, label=naam1, color='teal')
+    rects2 = ax.bar(i + width/2, height=combi_df.iloc[:,1], width = width, label=naam2, color='black')
 
     ax.set_xticks(i, list(combi_df.index), rotation=90)
     if log: ax.set_yscale('log')
