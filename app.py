@@ -17,7 +17,8 @@ verdeelsleutels_dict = {
     'landelijk': verfuncs.landelijke_uitslag,
     'kiesmannen': verfuncs.landelijke_uitslag_kiesmannen,
     'top n': verfuncs.landelijke_uitslag_top_n,
-    'per gemeente': verfuncs.zetels_per_gewonnen_gemeente
+    'per gemeente': verfuncs.zetels_per_gewonnen_gemeente,
+    'per provincie': verfuncs.provincie_als_landelijk
 }
 
 
@@ -109,6 +110,27 @@ def get_verdeelsleutels_list():
     return jsonify(verdeelsleutels_list)
 
 
+@app.route("/provincies/list", methods=['GET'])
+def get_provincies_list():
+    return jsonify(provincie_list)
+
+
+# Endpoints voor het ophalen van uitslagen/grafieken naar frontend
+@app.route('/tabel_los', methods=['POST'])
+def tabel_enkel():
+    request_dict = request.get_json()
+    verdeelsleutel_keyw = request_dict['type']
+    
+    if verdeelsleutel_keyw == 'top n':
+        n = int(request_dict['opties'])
+        zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](uitslagenDF, n)
+    elif verdeelsleutel_keyw == 'per provincie':
+        zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](request_dict['weights'])
+    else: zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](uitslagenDF)
+
+    return zetelsDF.to_json()
+
+
 @app.route('/plot_los', methods=['POST'])
 def plot_enkel():
     request_dict = request.get_json()
@@ -117,6 +139,8 @@ def plot_enkel():
     if verdeelsleutel_keyw == 'top n':
         n = int(request_dict['opties'])
         zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](uitslagenDF, n)
+    elif verdeelsleutel_keyw == 'per provincie':
+        zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](request_dict['weights'])
     else: zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](uitslagenDF)
 
     fig = vergrafs.plot_uitslag(zetelsDF)

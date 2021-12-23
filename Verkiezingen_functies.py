@@ -101,8 +101,80 @@ def perc_ongeldig_gemeente(uitslagenDF, gemeente):
     
     return percDF
     
-    
-  
+
+def provincie_stemmen(provincie):   #deze functie pakt de lijst van gemeentes per provincie en de normale dataframe en voegt ze vervolgens samen op gemeentenaam als key.
+ #                                  #daarna wordt er op provincie geflitered en geeft df_prinvcie2 alleen de resultaten uit de normale dataframe terug voor die provincie
+    uitslagenDF = pd.read_csv(r'Uitslag_alle_gemeenten_TK20210317.csv', sep=';')
+    uitslagentweeDF = pd.read_csv(u'Gemeenten alfabetisch 2019.csv', sep=',')
+    #print(uitslagentweeDF)
+    prov_gem_df = pd.DataFrame(data=list(uitslagentweeDF['Provincienaam']), columns=['Provincienaam'], index=list(uitslagentweeDF['Gemeentenaam']))
+    prov_gem_df.index.name = 'Gemeentenaam'
+    #print(uitslagentweeDF)
+    #print(prov_gem_df)
+    df_merge = pd.merge(uitslagenDF, uitslagentweeDF, how='left', left_on=['RegioNaam'], right_on=['Gemeentenaam'])
+    #print(df_met_provincies)
+    df_provincie = df_merge[df_merge['Provincienaam'] == provincie ]
+    df_provincie2=df_provincie.iloc[:,0:47]
+    return df_provincie2
+
+def provincie_als_landelijk(provincie_inputs):     #pakt de zetelverdeling op provincie niveau en voegt deze samen tot nieuwe dataframe, met op het einde de normale landelijke uitslag.
+    uitslagentweeDF = pd.read_csv(u'Gemeenten alfabetisch 2019.csv', sep=',')
+    provincie_lijst=list(uitslagentweeDF['Provincienaam'].unique())
+    #print(provincie_lijst)
+    totaalDF = pd.DataFrame()
+    for provincie in provincie_lijst:
+        tijdelijk_df= landelijke_uitslag(provincie_stemmen(provincie))
+        df_renamed_provincie = tijdelijk_df.rename(columns={'stemmen': 'stemmen in '+ provincie})
+        #df_renamed_provincie = tijdelijk_df.rename(columns={'zetels' : 'zetels in ' +provincie})
+        df_renamed_provincie = df_renamed_provincie.iloc[:,0]
+        totaalDF =pd.merge(totaalDF, df_renamed_provincie, how='outer', left_index=True, right_index=True)
+    #print(totaalDF)
+    landelijkeDF=landelijke_uitslag(pd.read_csv(r'Uitslag_alle_gemeenten_TK20210317.csv', sep=';'))
+    #print(landelijkeDF)
+
+    #landelijkeDF = landelijkeDF.rename(columns={'zetels' : 'zetels in totaal'})
+    landelijkeDF = landelijkeDF.rename(columns={'stemmen' : 'stemmen in totaal'})
+    landelijkeDF = landelijkeDF.iloc[:,0]   #pakt de rij met stemmen
+    #print(landelijkeDF)
+    totaalDF =pd.merge(totaalDF, landelijkeDF, how='outer', left_index=True, right_index=True)
+    #print(totaalDF.sort_values(by='stemmen in totaal', ascending=False))
+    tabelmetstemmen2DF = totaalDF.sort_values(by='stemmen in totaal', ascending=False)
+    seriesmetstemmenDF= tabelmetstemmen2DF.sum()
+    series_gewichten= seriesmetstemmenDF/seriesmetstemmenDF[12]
+    # gedeelte voor zetels
+    uitslagentweeDF = pd.read_csv(u'Gemeenten alfabetisch 2019.csv', sep=',')
+    provincie_lijst=list(uitslagentweeDF['Provincienaam'].unique())
+    #print(provincie_lijst)
+    totaal2DF = pd.DataFrame()
+    for provincie in provincie_lijst:
+        tijdelijk_df= landelijke_uitslag(provincie_stemmen(provincie))
+        #df_renamed_provincie = tijdelijk_df.rename(columns={'stemmen': 'stemmen in '+ provincie})
+        df_renamed_provincie = tijdelijk_df.rename(columns={'zetels' : 'zetels in ' +provincie})
+        df_renamed_provincie = df_renamed_provincie.iloc[:,1]
+        totaal2DF =pd.merge(totaal2DF, df_renamed_provincie, how='outer', left_index=True, right_index=True)
+    #print(totaal2DF)
+    landelijkeDF=landelijke_uitslag(pd.read_csv(r'Uitslag_alle_gemeenten_TK20210317.csv', sep=';'))
+    #print(landelijkeDF)
+
+    landelijkeDF = landelijkeDF.rename(columns={'zetels' : 'zetels in totaal'})
+    #landelijkeDF = landelijkeDF.rename(columns={'stemmen' : 'stemmen in totaal'})
+    landelijkeDF = landelijkeDF.iloc[:,1]   #pakt de rij met stemmen
+    #print(landelijkeDF)
+    totaal2DF =pd.merge(totaal2DF, landelijkeDF, how='outer', left_index=True, right_index=True)
+    totaal3DF = totaal2DF.sort_values(by='zetels in totaal', ascending=False)
+    totaal4DF = totaal3DF.iloc[:,0:12]
+    series_gewichten2= series_gewichten[0:12]
+    inputs_gewichten = pd.Series([int(provincie_inputs['Drenthe']),int(provincie_inputs['Noord_Holland']),int(provincie_inputs['Gelderland']),int(provincie_inputs['Friesland']),int(provincie_inputs['Zuid_Holland']),int(provincie_inputs['Overijssel']),int(provincie_inputs['Flevoland']),int(provincie_inputs['Noord_Brabant']),int(provincie_inputs['Utrecht']),int(provincie_inputs['Groningen']),int(provincie_inputs['Limburg']),int(provincie_inputs['Zeeland'])],index=series_gewichten2.index) 
+    series_gewichten3=series_gewichten2*inputs_gewichten
+    print(series_gewichten2)
+    totaal5DF = totaal4DF.dot(series_gewichten3.to_numpy())
+
+    totaal6DF = totaal5DF/totaal5DF.sum()*150
+    totaal6DF = (totaal6DF+0.4).astype(int)
+    totaal6DF = totaal6DF.to_frame()
+    totaal6DF.columns = ['zetels']
+    return(totaal6DF)
+
 def uitslag_gemeente(uitslagenDF, gemeente):
     """
     Bepaal de rangschikking van de partijen naar het aantal stemmen in een bepaalde gemeente.
