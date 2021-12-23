@@ -30,7 +30,7 @@ def combineer_uitslagen_v15(df, n1=3, n2=3, optie_1='landelijk', optie_2='top n'
     return df_combi[(df_combi.iloc[:,0] != 0) | (df_combi.iloc[:,1] != 0)], naam1, naam2
 
 
-def plot_landelijk_vs_top_n_v2(df=uitslagenDF, n1=3, n2=3, optie1='top n', optie2='top n', log=False):
+def plot_landelijk_vs_top_n_v2(df, n1=3, n2=3, optie1='top n', optie2='top n', log=False):
     """
     Plot de huidige landelijke zetelverdeling tegen de verdeling op basis van de grootste n partijen per gemeente.
     """
