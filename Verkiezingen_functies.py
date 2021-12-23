@@ -100,6 +100,7 @@ def perc_ongeldig_gemeente(uitslagenDF, gemeente):
     
     return percDF
     
+
 def provincie_stemmen(provincie):   #deze functie pakt de lijst van gemeentes per provincie en de normale dataframe en voegt ze vervolgens samen op gemeentenaam als key.
  #                                  #daarna wordt er op provincie geflitered en geeft df_prinvcie2 alleen de resultaten uit de normale dataframe terug voor die provincie
     uitslagenDF = pd.read_csv(r'Uitslag_alle_gemeenten_TK20210317.csv', sep=';')
@@ -169,9 +170,9 @@ def provincie_als_landelijk(provincie_inputs):     #pakt de zetelverdeling op pr
 
     totaal6DF = totaal5DF/totaal5DF.sum()*150
     totaal6DF = (totaal6DF+0.4).astype(int)
-    print(totaal6DF.sum())
-    return(totaal6DF.to_frame())
-
+    totaal6DF = totaal6DF.to_frame()
+    totaal6DF.columns = ['zetels']
+    return(totaal6DF)
 
 def uitslag_gemeente(uitslagenDF, gemeente):
     """

@@ -17,7 +17,8 @@ verdeelsleutels_dict = {
     'landelijk': verfuncs.landelijke_uitslag,
     'kiesmannen': verfuncs.landelijke_uitslag_kiesmannen,
     'top n': verfuncs.landelijke_uitslag_top_n,
-    'per gemeente': verfuncs.zetels_per_gewonnen_gemeente
+    'per gemeente': verfuncs.zetels_per_gewonnen_gemeente,
+    'per provincie': verfuncs.provincie_als_landelijk
 }
 
 provincie_list =['Drenthe','Noord_Holland','Gelderland','Friesland','Zuid_Holland','Overijssel','Flevoland','Noord_Brabant','Utrecht','Groningen','Limburg','Zeeland']
@@ -134,6 +135,8 @@ def tabel_enkel():
     if verdeelsleutel_keyw == 'top n':
         n = int(request_dict['opties'])
         zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](uitslagenDF, n)
+    elif verdeelsleutel_keyw == 'per provincie':
+        zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](request_dict['weights'])
     else: zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](uitslagenDF)
 
     return zetelsDF.to_json()
@@ -147,6 +150,8 @@ def plot_enkel():
     if verdeelsleutel_keyw == 'top n':
         n = int(request_dict['opties'])
         zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](uitslagenDF, n)
+    elif verdeelsleutel_keyw == 'per provincie':
+        zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](request_dict['weights'])
     else: zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](uitslagenDF)
 
     fig = vergrafs.plot_uitslag(zetelsDF)
