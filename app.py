@@ -133,7 +133,7 @@ def tabel_enkel():
     verdeelsleutel_keyw = request_dict['type']
     
     if verdeelsleutel_keyw == 'top n':
-        n = int(request_dict['opties'])
+        n = int(request_dict['n'])
         zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](uitslagenDF, n)
     elif verdeelsleutel_keyw == 'per provincie':
         zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](request_dict['weights'])
@@ -148,7 +148,7 @@ def plot_enkel():
     verdeelsleutel_keyw = request_dict['type']
     
     if verdeelsleutel_keyw == 'top n':
-        n = int(request_dict['opties'])
+        n = int(request_dict['n'])
         zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](uitslagenDF, n)
     elif verdeelsleutel_keyw == 'per provincie':
         zetelsDF = verdeelsleutels_dict[verdeelsleutel_keyw](request_dict['weights'])
