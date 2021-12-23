@@ -179,7 +179,6 @@ def provincie_als_landelijk(provincie_inputs):     #pakt de zetelverdeling op pr
         test4.loc[index] +=1
 
     test4.columns = ['zetels']
-    print(test4)
     return(test4)
 
 
@@ -393,7 +392,7 @@ def leesjson(data):
         weights1 = dict1['weights']
 
     if dict2['type'] == "top n":
-        n2 = dict2['opties']
+        n2 = dict2['n']
         n2=int(n2)
     elif dict2['type'] == "per provincie":
         weights2 = dict2['weights']
