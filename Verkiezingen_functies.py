@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
-
-
+from Provincie_per_gemeente import provincie_gemeente
 
 def landelijke_uitslag(uitslagenDF):
     """
@@ -370,3 +369,16 @@ def landelijke_uitslag_top_n(df, n=3):
             zetelsDF.loc[partij, 'zetels'] = 0
         
     return zetelsDF
+
+def leesjson(data):
+    dict1, dict2 = data["sleutels"]
+    optie1 = dict1["type"]
+    optie2 = dict2["type"]
+    n1, n2 = 0, 0 
+    if dict1['opties'] != "":
+        n1 = dict1['opties']
+        n1=int(n1)
+    if dict2['opties'] != "":
+        n2 = dict2['opties']
+        n2=int(n2)
+    return optie1, optie2, n1, n2

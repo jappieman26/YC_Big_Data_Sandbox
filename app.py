@@ -1,6 +1,6 @@
 import pandas as pd
 from flask_cors import CORS
-from flask import Flask, Response, request, jsonify
+from flask import Flask, Response, request, jsonify, render_template
 import io
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -21,6 +21,8 @@ verdeelsleutels_dict = {
     'per provincie': verfuncs.provincie_als_landelijk
 }
 
+provincie_list =['Drenthe','Noord_Holland','Gelderland','Friesland','Zuid_Holland','Overijssel','Flevoland','Noord_Brabant','Utrecht','Groningen','Limburg','Zeeland']
+
 
 app = Flask(__name__)
 CORS(app)
@@ -31,7 +33,7 @@ CORS(app)
 def hello_world():
     return "<p>Hello, World!</p>"
 
-
+# Landelijke uitslagen
 @app.route("/landelijke_uitslag/werkelijk", methods=['GET'])
 def get_landelijke_uitslag():
     return verfuncs.landelijke_uitslag(uitslagenDF).to_json()
@@ -40,6 +42,7 @@ def get_landelijke_uitslag():
 @app.route("/landelijke_uitslag/kiesmannen", methods=['GET'])
 def get_landelijke_uitslag_kiesmannen():
     return verfuncs.landelijke_uitslag_kiesmannen(uitslagenDF).to_html()
+
 
 @app.route('/landelijke_uitslag/top_n_partijen/<aantal>')
 def landelijk_top_n_partijen(aantal):
@@ -50,11 +53,22 @@ def landelijk_top_n_partijen(aantal):
     return verfuncs.landelijke_uitslag_top_n(uitslagenDF, aantal).to_html()
 
 
+@app.route("/alternatief/gemeente/winnaar")
+def get_populairste_per_gemeente():
+    return verfuncs.populairste_per_gemeente(uitslagenDF).to_html()
 
-@app.route("/gemeente/list", methods=['GET'])
-def get_alle_gemeentes():
-    return uitslagenDF['RegioNaam'].to_json()
+@app.route("/alternatief/gemeente/zetels")
+def get_zetels_per_gewonnen_gemeente():
+    return verfuncs.zetels_per_gewonnen_gemeente(uitslagenDF).to_html()
 
+
+@app.route("/landelijke_uitslag/provincies", methods=['POST'])
+def get_provincie_als_landelijk():
+    request_provincies = request.get_json()
+    return verfuncs.provincie_als_landelijk(request_provincies).to_json()
+
+
+# Gemeente uitslagen/data
 @app.route("/gemeente/uitslag/", methods=['GET'])
 @app.route("/gemeente/uitslag/<gemeente>", methods=['GET'])
 def get_uitslag_gemeente(gemeente=""):
@@ -95,13 +109,10 @@ def get_volgorde_gemeentes(partij=""):
             return verfuncs.volgorde_gemeentes(uitslagenDF, partijnaam).to_html()
 
 
-@app.route("/alternatief/gemeente/winnaar")
-def get_populairste_per_gemeente():
-    return verfuncs.populairste_per_gemeente(uitslagenDF).to_html()
-
-@app.route("/alternatief/gemeente/zetels")
-def get_zetels_per_gewonnen_gemeente():
-    return verfuncs.zetels_per_gewonnen_gemeente(uitslagenDF).to_html()
+# Lijsten met data voor frontend
+@app.route("/gemeente/list", methods=['GET'])
+def get_alle_gemeentes():
+    return uitslagenDF['RegioNaam'].to_json()
 
 
 @app.route("/verdeelsleutels/list", methods=['GET'])
@@ -156,6 +167,17 @@ def plot_v2(n1, n2, optie1, optie2):
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
+
+@app.route('/plot2functies', methods=['POST'])
+def nieuwplot():
+    data = request.get_json()
+    optie1, optie2, n1, n2 = verfuncs.leesjson(data)
+    
+    fig = vergrafs.plot_landelijk_vs_top_n_v2(uitslagenDF, n1, n2, optie1, optie2)
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+
 
 
 if __name__ == '__main__':
