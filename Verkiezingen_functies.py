@@ -381,13 +381,20 @@ def landelijke_uitslag_top_n(df, n=3):
     return zetelsDF
 def leesjson(data):
     dict1, dict2 = data["sleutels"]
-    optie1 = dict1["type"]
-    optie2 = dict2["type"]
-    n1, n2 = 0, 0 
-    if dict1['opties'] != "":
-        n1 = dict1['opties']
+    sleutel1 = dict1["type"]
+    sleutel2 = dict2["type"]
+    n1, n2 = 0, 0
+    weights1, weights2 = dict(), dict()
+
+    if dict1['type'] == "top n":
+        n1 = dict1['n']
         n1=int(n1)
-    if dict2['opties'] != "":
+    elif dict1['type'] == "per provincie":
+        weights1 = dict1['weights']
+
+    if dict2['type'] == "top n":
         n2 = dict2['opties']
         n2=int(n2)
-    return optie1, optie2, n1, n2
+    elif dict2['type'] == "per provincie":
+        weights2 = dict2['weights']
+    return sleutel1, sleutel2, n1, n2, weights1, weights2

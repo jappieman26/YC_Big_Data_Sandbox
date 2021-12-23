@@ -168,12 +168,15 @@ def plot_v2(n1, n2, optie1, optie2):
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
 
+
 @app.route('/plot2functies', methods=['POST'])
 def nieuwplot():
     data = request.get_json()
-    optie1, optie2, n1, n2 = verfuncs.leesjson(data)
-    
-    fig = vergrafs.plot_landelijk_vs_top_n_v2(uitslagenDF, n1, n2, optie1, optie2)
+    optie1, optie2, n1, n2, weights1, weights2 = verfuncs.leesjson(data)
+
+    combi_df, naam1, naam2 = vergrafs.combineer_uitslagen_v15(uitslagenDF, n1, n2, optie1, optie2, weights1, weights2)
+
+    fig = vergrafs.plot_landelijk_vs_top_n_v2(combi_df, naam1, naam2)
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')

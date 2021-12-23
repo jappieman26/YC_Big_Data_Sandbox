@@ -8,7 +8,7 @@ import Verkiezingen_functies as verfuncs
 
 
 
-def combineer_uitslagen_v15(df, n1=3, n2=3, optie_1='landelijk', optie_2='top n'):
+def combineer_uitslagen_v15(df, n1=3, n2=3, optie_1='landelijk', optie_2='top n', weights1=dict(), weights2=dict()):
     """
     Lambda poging 5: hardcoded in dict. lambda dict functionality. Combineert de 'zetel' kolommen van 2 functie returns naar keuze. 
     """
@@ -18,9 +18,14 @@ def combineer_uitslagen_v15(df, n1=3, n2=3, optie_1='landelijk', optie_2='top n'
         'kiesmannen': lambda df, n: verfuncs.landelijke_uitslag_kiesmannen(df),
         'per gemeente': lambda df, n: verfuncs.zetels_per_gewonnen_gemeente(df)
     }
-    lijn = 4 # op welke regel staat 
-    df_1 = opties_dict.get(optie_1)(df, n1)
-    df_2 = opties_dict.get(optie_2)(df, n2)
+
+    if optie_1 == 'per provincie':
+        df_1 = verfuncs.provincie_als_landelijk(weights1)
+    else: df_1 = opties_dict.get(optie_1)(df, n1)
+    if optie_2 == 'per provincie':
+        df_2 = verfuncs.provincie_als_landelijk(weights2)
+    else: df_2 = opties_dict.get(optie_2)(df, n2)
+
     naam1 = optie_1.replace(" n", f" {n1}") 
     naam2 = optie_2.replace(" n", f" {n2}") 
     col_naam1 = f"zetels obv {naam1}"
@@ -30,11 +35,10 @@ def combineer_uitslagen_v15(df, n1=3, n2=3, optie_1='landelijk', optie_2='top n'
     return df_combi[(df_combi.iloc[:,0] != 0) | (df_combi.iloc[:,1] != 0)], naam1, naam2
 
 
-def plot_landelijk_vs_top_n_v2(df, n1=3, n2=3, optie1='top n', optie2='top n', log=False):
+def plot_landelijk_vs_top_n_v2(combi_df, naam1, naam2, log=False):
     """
     Plot de huidige landelijke zetelverdeling tegen de verdeling op basis van de grootste n partijen per gemeente.
     """
-    combi_df, naam1, naam2 = combineer_uitslagen_v15(df, n1, n2, optie1, optie2)
 
     i = np.arange(0, len(list(combi_df.index))) #space the x axis labels
     width = 0.4
