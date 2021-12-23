@@ -27,7 +27,7 @@ def combineer_uitslagen_v15(df, n1=3, n2=3, optie_1='landelijk', optie_2='top n'
     col_naam2 = f"zetels obv {naam2}"
     df_combi = pd.concat([df_1['zetels'], df_2['zetels']], axis=1).replace(np.nan, 0)
     df_combi.columns = [col_naam1, col_naam2]
-    return df_combi[(df_combi[col_naam1] != 0) | (df_combi[col_naam2] != 0)], naam1, naam2
+    return df_combi[(df_combi.iloc[:,0] != 0) | (df_combi.iloc[:,1] != 0)], naam1, naam2
 
 
 def plot_landelijk_vs_top_n_v2(df, n1=3, n2=3, optie1='top n', optie2='top n', log=False):
