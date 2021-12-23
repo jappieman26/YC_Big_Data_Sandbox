@@ -374,8 +374,10 @@ def leesjson(data):
     optie1 = dict1["type"]
     optie2 = dict2["type"]
     n1, n2 = 0, 0 
-    if 'opties' in dict1.keys():
+    if dict1['opties'] != "":
         n1 = dict1['opties']
-    if 'opties' in dict2.keys():
+        n1=int(n1)
+    if dict2['opties'] != "":
         n2 = dict2['opties']
+        n2=int(n2)
     return optie1, optie2, n1, n2
